@@ -32,32 +32,45 @@ def get_user_choice():
 
 
 def output_blocks():
-    print('Complete blockchain: ' + repr(blockchain))
+    #print('Complete blockchain: ' + repr(blockchain))
     for block in blockchain:
         print('Block: ')
         print(block)
-
+    else:
+        print('-' * 40)
 
 def verify_chain():
-    block_index = 0
+    # block_index = 0
     is_valid = True
 
-
-    for block in blockchain:
+    for block_index in range(len(blockchain)):
+        #print(blockchain[block_index][0])
         if block_index == 0:
-            block_index += 1
             continue
-        elif block[0] == blockchain[block_index - 1]:
+        elif blockchain[block_index][0] == blockchain[block_index - 1]:
             is_valid = True
         else:
             is_valid = False
-            break
+
+    # for block in blockchain:
+    #     if block_index == 0:
+    #         block_index += 1
+    #         continue
+    #     elif block[0] == blockchain[block_index - 1]:
+    #         is_valid = True
+    #     else:
+    #         is_valid = False
+    #         break
         
-        block_index += 1
+    #     block_index += 1
 
     return is_valid
 
-while True:
+
+waiting_for_quit = True
+
+
+while waiting_for_quit:
     print('Please choose')
     print('1 - Add a new transaction value')
     print('2 - Output the blockchain blocks')
@@ -72,13 +85,16 @@ while True:
         output_blocks()
     elif user_choice == 'h':
         if len(blockchain) >= 1:
-            blockchain[0] = 2
+            blockchain[0] = [2]
     elif user_choice == 'q':
         print('Done')
-        break
+        waiting_for_quit = False
     else:
         print('Input invalid, please choose other.')
     
     if not verify_chain():
+        output_blocks()
         print('Invalid blockchain')
         break
+else:
+    print('User left')
