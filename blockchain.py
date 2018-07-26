@@ -1,3 +1,5 @@
+import functools
+
 # Initializing 
 MINING_REWARD = 10
 GENESIS_BLOCK = {
@@ -69,12 +71,14 @@ def get_amount_from_participant(participantType, participant):
         open_tx = [tx['amount'] for tx in open_transactions if tx[participantType] == participant]
         amount_transactions.append(open_tx)
 
-    amount = 0
-    for tx in amount_transactions:
-        if (len(tx) > 0):
-            amount += tx[0]
+    return functools.reduce(lambda tx_sum, tx_amt: tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0, amount_transactions, 0)
+
+    # amount = 0
+    # for tx in amount_transactions:
+    #     if (len(tx) > 0):
+    #         amount += tx[0]
     
-    return amount
+    # return amount
 
 
 def verify_transaction(transaction):
