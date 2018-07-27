@@ -1,4 +1,6 @@
-import functools
+from functools import reduce
+import hashlib as hl
+import json
 
 # Initializing 
 MINING_REWARD = 10
@@ -32,6 +34,7 @@ def get_last_blockchain_value():
 
 
 def add_transaction(recipient, sender=owner, amount=1.0):
+    
     """ Adding value to the blockchain
     
         Arguments:
@@ -57,7 +60,7 @@ def add_transaction(recipient, sender=owner, amount=1.0):
 
 
 def hash_block(block):
-    return '-'.join([str(block[key]) for key in block])
+    return hl.sha256(json.dumps(block).encode()).hexdigest()
 
 
 def get_balance(participant):
@@ -71,7 +74,7 @@ def get_amount_from_participant(participantType, participant):
         open_tx = [tx['amount'] for tx in open_transactions if tx[participantType] == participant]
         amount_transactions.append(open_tx)
 
-    return functools.reduce(lambda tx_sum, tx_amt: tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0, amount_transactions, 0)
+    return reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if len(tx_amt) > 0 else tx_sum, amount_transactions, 0)
 
     # amount = 0
     # for tx in amount_transactions:
@@ -92,7 +95,7 @@ def verify_transactions():
 def mine_block():
     last_block = blockchain[-1]
     hashed_block = hash_block(last_block)
-
+    
     reward_transaction = {
         'sender': 'MINING',
         'recipient': owner,
