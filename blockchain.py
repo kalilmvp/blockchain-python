@@ -1,6 +1,7 @@
 from functools import reduce
 import hashlib as hl
 import json
+import pickle
 from collections import OrderedDict
 
 from hash_util import hash_string_256, hash_block
@@ -31,43 +32,29 @@ hack_block = {
 
 
 def load_data():
-    with open('blockchain.txt', mode='r') as f:
-        file_content = f.readlines()
+    with open('blockchain.p', mode='rb') as f:
+        file_content = pickle.loads(f.read())
+        print(file_content)
         if len(file_content) > 0: 
-            global blockchain
-            blockchain = json.loads(file_content[0][:-1])
-            
-            updated_blockchain = []
-            for block in blockchain:
-                updated_blockchain.append(
-                    {
-                        'previous_hash': block['previous_hash'],
-                        'index': block['index'],
-                        'proof': block['proof'],
-                        'transactions': [OrderedDict(
-                            [('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])]) for tx in block['transactions']]
-                    }
-                )
-            blockchain = updated_blockchain
-
-            global open_transactions    
-            open_transactions = json.loads(file_content[1])
-
-            updated_transactions = []
-            for tx in open_transactions:
-                updated_transactions.append(
-                    OrderedDict([('sender', tx['sender']), ('recipient', tx['recipient']), ('amount', tx['amount'])]))
-            open_transactions = updated_transactions
+             global blockchain
+             blockchain = file_content['chain']
+             global open_transactions    
+             open_transactions = file_content['ot']
 
 
 load_data()
 
 
 def save_data():
-    with open('blockchain.txt', mode='w') as file:
-        file.write(json.dumps(blockchain))
-        file.write('\n')
-        file.write(json.dumps(open_transactions))
+    with open('blockchain.p', mode='wb') as file:
+        # file.write(json.dumps(blockchain))
+        # file.write('\n')
+        # file.write(json.dumps(open_transactions))
+        save_data = {
+            'chain': blockchain,
+            'ot': open_transactions
+        }
+        file.write(pickle.dumps(save_data))
 
 
 def get_last_blockchain_value():
