@@ -6,4 +6,5 @@ def hash_string_256(value):
 
 
 def hash_block(block):
-    return hash_string_256(json.dumps(block, sort_keys=True))
+    hashed_block = block.__dict__.copy()
+    return hash_string_256(json.dumps(hashed_block, sort_keys=True))
