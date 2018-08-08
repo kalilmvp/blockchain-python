@@ -5,7 +5,8 @@ from uuid import uuid4
 class Node:
 
     def __init__(self):
-        self.id = str(uuid4())
+        #self.id = str(uuid4())
+        self.id = "MAX"
         self.blockchain = Blockchain(self.id)
 
     def get_transaction_value(self):
@@ -57,8 +58,7 @@ class Node:
             elif user_choice == '3':
                 self.output_blocks()
             elif user_choice == '4':
-                verifier = Verification()
-                if verifier.verify_transactions(self.blockchain.open_transactions, self.blockchain.get_balance):
+                if Verification.verify_transactions(self.blockchain.open_transactions, self.blockchain.get_balance):
                     print('All transactions are valid')
                 else:
                     print('Invalid transaction')
@@ -69,8 +69,7 @@ class Node:
             else:   
                 print('Input invalid, please choose other.')
             
-            verifier = Verification()
-            if not verifier.verify_chain(self.blockchain.chain):
+            if not Verification.verify_chain(self.blockchain.chain):
                 self.output_blocks()
                 print('Invalid blockchain')
                 break
