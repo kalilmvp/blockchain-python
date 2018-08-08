@@ -49,6 +49,7 @@ class Blockchain:
 
 
     def save_data(self):
+        print('entrou aqui')
         try:
             with open('blockchain.p', mode='wb') as file:
                 # file.write(json.dumps(blockchain))
@@ -59,7 +60,8 @@ class Blockchain:
                     'ot': self.open_transactions
                 }
                 file.write(pickle.dumps(save_data))
-        except IOError as identifier:
+                print('chegou aqui')
+        except IOError:
             print('Saving failed')
         
 
@@ -112,7 +114,8 @@ class Blockchain:
         return proof
 
 
-    def get_balance(self, participant):
+    def get_balance(self):
+        participant = self.hosting_node
         return self.get_amount_from_participant('recipient', participant) - self.get_amount_from_participant('sender', participant)
 
 
@@ -150,5 +153,8 @@ class Blockchain:
         copied_transactions.append(reward_transaction)
 
         self.chain.append(Block(len(self.chain), hashed_block, copied_transactions, proof))
+
+        self.open_transactions = []
+        self.save_data()
 
         return True
