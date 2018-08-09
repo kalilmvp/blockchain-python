@@ -1,7 +1,10 @@
-from hash_util import hash_string_256, hash_block
+
+""" Provides verification helper methods """
+from utils.hash_util import hash_string_256, hash_block
 
 class Verification:
-
+    
+    """ Provides verification helper methods """
 
     @classmethod
     def verify_chain(cls, blockchain):

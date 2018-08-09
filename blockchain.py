@@ -2,11 +2,11 @@ from functools import reduce
 import hashlib as hl
 import json
 import pickle
-from hash_util import hash_block
+from utils.hash_util import hash_block
+from utils.verification import Verification
 from collections import OrderedDict
 from block import Block
 from transaction import Transaction
-from verification import Verification
 
 # Initializing 
 MINING_REWARD = 10
@@ -14,8 +14,8 @@ MINING_REWARD = 10
 class Blockchain:
 
     def __init__(self, hosting_node):
-        self.__chain = [Block(0, '', [], 100, 0)]
-        self.__open_transactions = []
+        self.chain = [Block(0, '', [], 100, 0)]
+        self.open_transactions = []
         self.hosting_node = hosting_node
         self.load_data()
 
@@ -42,12 +42,14 @@ class Blockchain:
         self.__chain = val
 
 
-    def get_chain(self):
-        self.__chain
+    @property
+    def open_transactions(self):
+        return self.__open_transactions[:]
 
     
-    def get_open_transactions(self):
-        self.__open_transactions
+    @open_transactions.setter
+    def open_transactions(self, val):
+        self.__open_transactions = val
 
 
     def load_data(self):
