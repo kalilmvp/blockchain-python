@@ -15,7 +15,7 @@ class Blockchain:
 
     def __init__(self, hosting_node):
         self.chain = [Block(0, '', [], 100, 0)]
-        self.open_transactions = []
+        self.__open_transactions = []
         self.hosting_node = hosting_node
         self.load_data()
 
@@ -42,14 +42,9 @@ class Blockchain:
         self.__chain = val
 
 
-    @property
-    def open_transactions(self):
+    def get_open_transactions(self):
+        """Returns a copy of the open transactions list."""
         return self.__open_transactions[:]
-
-    
-    @open_transactions.setter
-    def open_transactions(self, val):
-        self.__open_transactions = val
 
 
     def load_data(self):
@@ -61,7 +56,7 @@ class Blockchain:
                     for block in file_content['chain']:
                         updated_blockchain.append(block)
                     self.chain = updated_blockchain
-                    self.__open_transactions = file_content['ot']
+                    open_transactions = file_content['ot']
         except (IOError, IndexError):
             print('File not Found')
         finally:
@@ -108,6 +103,9 @@ class Blockchain:
         #     'amount': amount
         # }
 
+        #if self.check_hosting_node() == False:
+        #    return False
+
         transaction = Transaction(sender, recipient, amount)
         if Verification.verify_transaction(transaction, self.get_balance):
             self.__open_transactions.append(transaction)
@@ -132,6 +130,8 @@ class Blockchain:
 
     def get_balance(self):
         participant = self.hosting_node
+        print(self.get_amount_from_participant('recipient', participant))
+        print(self.get_amount_from_participant('sender', participant))
         return self.get_amount_from_participant('recipient', participant) - self.get_amount_from_participant('sender', participant)
 
 
@@ -140,6 +140,8 @@ class Blockchain:
             amount_transactions = [[tx.amount for tx in block.transactions if tx.sender == participant] for block in self.__chain]
             open_tx = [tx.amount for tx in self.__open_transactions if tx.sender == participant]
             amount_transactions.append(open_tx)
+            print(self.__open_transactions)
+            print('entrou aqui')
         else:
             amount_transactions = [[tx.amount for tx in block.transactions if tx.recipient == participant] for block in self.__chain]
         
@@ -158,7 +160,10 @@ class Blockchain:
 
 
     def mine_block(self):
-        last_block = self.__chain[-1]
+        #if self.check_hosting_node() == False:
+        #    return False
+
+        last_block = self.chain[-1]
         hashed_block = hash_block(last_block)
         
         proof = self.proof_of_work()
@@ -167,10 +172,14 @@ class Blockchain:
         
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)
-
-        self.chain.append(Block(len(self.__chain), hashed_block, copied_transactions, proof))
-
+        
+        self.__chain.append(Block(len(self.__chain), hashed_block, copied_transactions, proof))
         self.__open_transactions = []
         self.save_data()
 
         return True
+
+    
+    def check_hosting_node(self):
+        if self.hosting_node == None:
+            return False
