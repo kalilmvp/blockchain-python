@@ -56,7 +56,7 @@ class Blockchain:
                     for block in file_content['chain']:
                         updated_blockchain.append(block)
                     self.chain = updated_blockchain
-                    open_transactions = file_content['ot']
+                    self.open_transactions = file_content['ot']
         except (IOError, IndexError):
             print('File not Found')
         finally:
@@ -130,8 +130,6 @@ class Blockchain:
 
     def get_balance(self):
         participant = self.hosting_node
-        print(self.get_amount_from_participant('recipient', participant))
-        print(self.get_amount_from_participant('sender', participant))
         return self.get_amount_from_participant('recipient', participant) - self.get_amount_from_participant('sender', participant)
 
 
@@ -140,24 +138,11 @@ class Blockchain:
             amount_transactions = [[tx.amount for tx in block.transactions if tx.sender == participant] for block in self.__chain]
             open_tx = [tx.amount for tx in self.__open_transactions if tx.sender == participant]
             amount_transactions.append(open_tx)
-            print(self.__open_transactions)
-            print('entrou aqui')
         else:
             amount_transactions = [[tx.amount for tx in block.transactions if tx.recipient == participant] for block in self.__chain]
         
-        #print(amount_transactions)    
-
-        #print(amount_transactions)
-
         return reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if len(tx_amt) > 0 else tx_sum, amount_transactions, 0)
-
-        # amount = 0
-        # for tx in amount_transactions:
-        #     if (len(tx) > 0):
-        #         amount += tx[0]
         
-        # return amount
-
 
     def mine_block(self):
         #if self.check_hosting_node() == False:
