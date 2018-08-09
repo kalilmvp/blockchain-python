@@ -56,7 +56,7 @@ class Blockchain:
                     for block in file_content['chain']:
                         updated_blockchain.append(block)
                     self.chain = updated_blockchain
-                    self.open_transactions = file_content['ot']
+                    self.__open_transactions = file_content['ot']
         except (IOError, IndexError):
             print('File not Found')
         finally:
@@ -86,7 +86,7 @@ class Blockchain:
         return self.__chain[-1]
 
 
-    def add_transaction(self, recipient, sender, amount=1.0):
+    def add_transaction(self, recipient, sender, signature, amount=1.0):
         
         """ Adding value to the blockchain
         
@@ -97,19 +97,11 @@ class Blockchain:
         
         """
         
-        # transaction = {
-        #     'sender': sender,
-        #     'recipient': recipient,
-        #     'amount': amount
-        # }
-
-        #if self.check_hosting_node() == False:
-        #    return False
-
-        transaction = Transaction(sender, recipient, amount)
+        transaction = Transaction(sender, recipient,  signature, amount)
         if Verification.verify_transaction(transaction, self.get_balance):
+            #print('Transaction {}'.format(transaction))
             self.__open_transactions.append(transaction)
-            
+            #print('Open transactions {}'.format(self.__open_transactions))
             self.save_data()
 
             return True
@@ -142,7 +134,7 @@ class Blockchain:
             amount_transactions = [[tx.amount for tx in block.transactions if tx.recipient == participant] for block in self.__chain]
         
         return reduce(lambda tx_sum, tx_amt: tx_sum + sum(tx_amt) if len(tx_amt) > 0 else tx_sum, amount_transactions, 0)
-        
+
 
     def mine_block(self):
         #if self.check_hosting_node() == False:
@@ -153,7 +145,7 @@ class Blockchain:
         
         proof = self.proof_of_work()
 
-        reward_transaction = Transaction('MINING', self.hosting_node, MINING_REWARD)
+        reward_transaction = Transaction('MINING', self.hosting_node, '', MINING_REWARD)
         
         copied_transactions = self.__open_transactions[:]
         copied_transactions.append(reward_transaction)

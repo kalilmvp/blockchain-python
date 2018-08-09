@@ -22,6 +22,7 @@ class Node:
 
 
     def output_blocks(self):
+        print('Printing blocks')
         for block in self.blockchain.chain:
             print('Block: ')
             print(block)
@@ -50,12 +51,13 @@ class Node:
                 
                 recipient, amount = tx_data
 
-                if self.blockchain.add_transaction(recipient, self.wallet.public_key, amount=amount):
+                signature = self.wallet.sign_transaction(self.wallet.public_key, recipient, amount)
+                if self.blockchain.add_transaction(recipient, self.wallet.public_key, signature, amount=amount):
                     print('Transaction added')
                 else:
                     print('Failed to add, balance does not match')
 
-                # print(open_transactions)
+                print('Transactions: {}'.format(self.blockchain.get_open_transactions()))
             elif user_choice == '2':
                 if not self.blockchain.mine_block():
                     print('Mining failed. Got no wallet?')
@@ -85,6 +87,7 @@ class Node:
                 print('Invalid blockchain')
                 break
 
+            print('\n')
             print('Balance of {}: {:6.2f} '.format(self.wallet.public_key, self.blockchain.get_balance()))
         else:
             print('User left')
