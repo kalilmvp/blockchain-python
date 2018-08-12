@@ -7,6 +7,7 @@ from utils.verification import Verification
 from collections import OrderedDict
 from block import Block
 from transaction import Transaction
+from wallet import Wallet
 
 # Initializing 
 MINING_REWARD = 10
@@ -98,6 +99,7 @@ class Blockchain:
         """
         
         transaction = Transaction(sender, recipient,  signature, amount)
+    
         if Verification.verify_transaction(transaction, self.get_balance):
             #print('Transaction {}'.format(transaction))
             self.__open_transactions.append(transaction)
@@ -148,9 +150,19 @@ class Blockchain:
         reward_transaction = Transaction('MINING', self.hosting_node, '', MINING_REWARD)
         
         copied_transactions = self.__open_transactions[:]
+
+        for tx in copied_transactions:
+            if not Wallet.verify_transaction(tx):
+                print('Transaction verified and did not pass')
+                return False
+            else:
+                print('Transaction verified')   
+
         copied_transactions.append(reward_transaction)
         
-        self.__chain.append(Block(len(self.__chain), hashed_block, copied_transactions, proof))
+        block = Block(len(self.__chain), hashed_block, copied_transactions, proof)
+
+        self.__chain.append(block)
         self.__open_transactions = []
         self.save_data()
 
