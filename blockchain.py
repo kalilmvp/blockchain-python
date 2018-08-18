@@ -18,6 +18,7 @@ class Blockchain:
         self.chain = [Block(0, '', [], 100, 0)]
         self.__open_transactions = []
         self.hosting_node = hosting_node
+        self.__peer_nodes = set()
         self.load_data()
 
     
@@ -58,6 +59,7 @@ class Blockchain:
                         updated_blockchain.append(block)
                     self.chain = updated_blockchain
                     self.__open_transactions = file_content['ot']
+                    self.__peer_nodes = set(file_content['peer_nodes'])
         except (IOError, IndexError):
             print('File not Found')
         finally:
@@ -72,7 +74,8 @@ class Blockchain:
                 # file.write(json.dumps(open_transactions))
                 save_data = {
                     'chain': self.__chain,
-                    'ot': self.__open_transactions
+                    'ot': self.__open_transactions,
+                    'peer_nodes': list(self.__peer_nodes)
                 }
                 file.write(pickle.dumps(save_data))
         except IOError:
@@ -172,3 +175,28 @@ class Blockchain:
     def check_hosting_node(self):
         if self.hosting_node == None:
             return False
+    
+
+    def add_peer_node(self, node):
+        """ Adds a new node
+
+            Arguments:
+                :node: the node URL that will be added
+        """
+        self.__peer_nodes.add(node)
+        self.save_data()
+
+    
+    def remove_peer_node(self, node):
+        """ Removes a node
+
+            Arguments:
+                :node: the node URL that will be removed
+        """
+        self.__peer_nodes.discard(node)
+        self.save_data()
+
+    
+    def get_peer_nodes(self):
+        """ Get all peer nodes """
+        return list(self.__peer_nodes)
