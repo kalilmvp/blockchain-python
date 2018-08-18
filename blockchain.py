@@ -14,11 +14,12 @@ MINING_REWARD = 10
 
 class Blockchain:
 
-    def __init__(self, hosting_node):
+    def __init__(self, public_key, port):
         self.chain = [Block(0, '', [], 100, 0)]
         self.__open_transactions = []
-        self.hosting_node = hosting_node
+        self.public_key = public_key
         self.__peer_nodes = set()
+        self.port = port
         self.load_data()
 
     
@@ -51,7 +52,7 @@ class Blockchain:
 
     def load_data(self):
         try:
-            with open('blockchain.p', mode='rb') as f:
+            with open('blockchain-{}.p'.format(self.port), mode='rb') as f:
                 file_content = pickle.loads(f.read())
                 if len(file_content) > 0: 
                     updated_blockchain = []
@@ -68,7 +69,7 @@ class Blockchain:
 
     def save_data(self):
         try:
-            with open('blockchain.p', mode='wb') as file:
+            with open('blockchain.p-{}'.format(self.port), mode='wb') as file:
                 # file.write(json.dumps(blockchain))
                 # file.write('\n')
                 # file.write(json.dumps(open_transactions))
@@ -124,9 +125,9 @@ class Blockchain:
 
 
     def get_balance(self):
-        if self.hosting_node == None:
+        if self.public_key == None:
             return None
-        participant = self.hosting_node
+        participant = self.public_key
         return self.get_amount_from_participant('recipient', participant) - self.get_amount_from_participant('sender', participant)
 
 
@@ -150,7 +151,7 @@ class Blockchain:
         
         proof = self.proof_of_work()
 
-        reward_transaction = Transaction('MINING', self.hosting_node, '', MINING_REWARD)
+        reward_transaction = Transaction('MINING', self.public_key, '', MINING_REWARD)
         
         copied_transactions = self.__open_transactions[:]
 
@@ -173,7 +174,7 @@ class Blockchain:
 
     
     def check_hosting_node(self):
-        if self.hosting_node == None:
+        if self.public_key == None:
             return False
     
 
